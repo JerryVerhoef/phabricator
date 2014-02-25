@@ -17,6 +17,7 @@ final class PhabricatorRepositoryTransaction
   const TYPE_AUTOCLOSE = 'repo:autoclose';
   const TYPE_REMOTE_URI = 'repo:remote-uri';
   const TYPE_LOCAL_PATH = 'repo:local-path';
+  const TYPE_LAND_FROM_DIFF = 'repo:land-from-diff';
   const TYPE_HOSTING = 'repo:hosting';
   const TYPE_PROTOCOL_HTTP = 'repo:serve-http';
   const TYPE_PROTOCOL_SSH = 'repo:serve-ssh';
@@ -253,6 +254,19 @@ final class PhabricatorRepositoryTransaction
           return pht(
             '%s disabled notifications and publishing for this repository.',
             $this->renderHandleLink($author_phid));
+        }
+        break;
+      case self::TYPE_LAND_FROM_DIFF:
+        if ($new) {
+            return pht(
+              '%s allowed landing from diff',
+              $this->renderHandleLink($author_phid)
+            );
+        } else {
+            return pht(
+                '%s disallowed landing from diff',
+                $this->renderHandleLink($author_phid)
+            );
         }
         break;
       case self::TYPE_AUTOCLOSE:

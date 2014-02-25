@@ -32,6 +32,7 @@ final class PhabricatorRepositoryEditor
     $types[] = PhabricatorRepositoryTransaction::TYPE_CREDENTIAL;
     $types[] = PhabricatorRepositoryTransaction::TYPE_DANGEROUS;
     $types[] = PhabricatorRepositoryTransaction::TYPE_CLONE_NAME;
+    $types[] = PhabricatorRepositoryTransaction::TYPE_LAND_FROM_DIFF;
 
     $types[] = PhabricatorTransactions::TYPE_EDGE;
     $types[] = PhabricatorTransactions::TYPE_VIEW_POLICY;
@@ -87,6 +88,8 @@ final class PhabricatorRepositoryEditor
         return $object->shouldAllowDangerousChanges();
       case PhabricatorRepositoryTransaction::TYPE_CLONE_NAME:
         return $object->getDetail('clone-name');
+      case PhabricatorRepositoryTransaction::TYPE_LAND_FROM_DIFF:
+        return $object->getDetail('allow-land-from-diff');
     }
   }
 
@@ -122,6 +125,7 @@ final class PhabricatorRepositoryEditor
         return $xaction->getNewValue();
       case PhabricatorRepositoryTransaction::TYPE_NOTIFY:
       case PhabricatorRepositoryTransaction::TYPE_AUTOCLOSE:
+      case PhabricatorRepositoryTransaction::TYPE_LAND_FROM_DIFF:
         return (int)$xaction->getNewValue();
     }
   }
@@ -145,6 +149,9 @@ final class PhabricatorRepositoryEditor
         break;
       case PhabricatorRepositoryTransaction::TYPE_DEFAULT_BRANCH:
         $object->setDetail('default-branch', $xaction->getNewValue());
+        break;
+        case PhabricatorRepositoryTransaction::TYPE_LAND_FROM_DIFF:
+        $object->setDetail('allow-land-from-diff', $xaction->getNewValue());
         break;
       case PhabricatorRepositoryTransaction::TYPE_TRACK_ONLY:
         $object->setDetail(
@@ -302,6 +309,7 @@ final class PhabricatorRepositoryEditor
       case PhabricatorRepositoryTransaction::TYPE_CREDENTIAL:
       case PhabricatorRepositoryTransaction::TYPE_DANGEROUS:
       case PhabricatorRepositoryTransaction::TYPE_CLONE_NAME:
+      case PhabricatorRepositoryTransaction::TYPE_LAND_FROM_DIFF:
         PhabricatorPolicyFilter::requireCapability(
           $this->requireActor(),
           $object,

@@ -61,6 +61,10 @@ final class DifferentialLandingToGitHub
       return;
     }
 
+    if ( !$repository->getDetail( 'allow-land-from-diff', true) ) {
+        return;
+    }
+
     try {
       // These throw when failing.
       $this->init($viewer, $repository);
@@ -76,6 +80,13 @@ final class DifferentialLandingToGitHub
   public function pushWorkspaceRepository(
     PhabricatorRepository $repository,
     ArcanistRepositoryAPI $workspace) {
+
+    if ( !$repository->getDetail( 'allow-land-from-diff', true) ) {
+        throw new Exception(
+            "Allow landing to github is not allowed from the Web UI"
+        );
+
+    }
 
     $token = $this->getAccessToken();
 

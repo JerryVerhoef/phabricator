@@ -50,10 +50,13 @@ final class DiffusionRepositoryEditBranchesController
       'close-commits-filter',
       array());
 
+    $v_allowLandFromDiff = $repository->getDetail( 'allow-land-from-diff', true );
+
     if ($request->isFormPost()) {
       $v_default = $request->getStr('default');
       $v_track = $request->getStrList('track');
       $v_autoclose = $request->getStrList('autoclose');
+      $v_allowLandFromDiff = $request->getBool( 'allow-land-from-diff', false);
 
       $xactions = array();
       $template = id(new PhabricatorRepositoryTransaction());
@@ -61,6 +64,7 @@ final class DiffusionRepositoryEditBranchesController
       $type_default = PhabricatorRepositoryTransaction::TYPE_DEFAULT_BRANCH;
       $type_track = PhabricatorRepositoryTransaction::TYPE_TRACK_ONLY;
       $type_autoclose = PhabricatorRepositoryTransaction::TYPE_AUTOCLOSE_ONLY;
+      $type_landing = PhabricatorRepositoryTransaction::TYPE_LAND_FROM_DIFF;
 
       $xactions[] = id(clone $template)
         ->setTransactionType($type_default)
@@ -69,6 +73,10 @@ final class DiffusionRepositoryEditBranchesController
       $xactions[] = id(clone $template)
         ->setTransactionType($type_track)
         ->setNewValue($v_track);
+
+      $xactions[] = id(clone $template)
+        ->setTransactionType($type_landing)
+        ->setNewValue($v_allowLandFromDiff);
 
       if (!$is_hg) {
         $xactions[] = id(clone $template)
@@ -125,7 +133,18 @@ final class DiffusionRepositoryEditBranchesController
           ->setLabel(pht('Track Only'))
           ->setValue($v_track)
           ->setCaption(
-            pht('Example: %s', phutil_tag('tt', array(), 'master, develop'))));
+            pht('Example: %s', phutil_tag('tt', array(), 'master, develop'))))
+      ->appendChild(
+        id(new AphrontFormCheckboxControl())
+          ->addCheckbox(
+            'allow-land-from-diff',
+            1,
+            '',
+            $v_allowLandFromDiff)
+          ->setLabel(pht('Allow Landing'))
+          ->setCaption(
+            pht('Allow landing from a diff' )));
+
 
     if (!$is_hg) {
       $form->appendChild(
